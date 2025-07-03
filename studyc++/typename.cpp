@@ -1,49 +1,103 @@
 #include <iostream>
+#include <cstring>
+
 using namespace std;
 
-template<class T1, class T2>  //这里不能有分号
-class Point{
+class String{
 public:
-    Point(T1 x, T2 y): m_x(x), m_y(y){ }
-public:
-    T1 getX() const;  //获取x坐标
-    void setX(T1 x);  //设置x坐标
-    T2 getY() const;  //获取y坐标
-    void setY(T2 y);  //设置y坐标
+    String();
+    String(const char* s);
+    String(const String& s);
+    ~String();
+    String& operator=(const String& s);
+    char& operator[](size_t index);
+    friend String operator+(const String& lhs,const String& rhs);
+    friend ostream& operator<<(ostream& os, const String& str);
+    friend istream& operator>>(istream& is, String& str);
+    void tostring();
 private:
-    T1 m_x;  //x坐标
-    T2 m_y;  //y坐标
+    char* m_str;
+    size_t m_size;
+    size_t m_cap;
 };
-
-template<class T1, class T2>  //模板头
-T1 Point<T1, T2>::getX() const /*函数头*/ {
-    return m_x;
+void String::tostring(){
+    if(m_str!=nullptr)
+        cout << m_str<<"    m_size:"<<m_size<<"      address"<<&m_str <<endl;
+    cout << "////////////////////////"<<endl;
 }
 
-template<class T1, class T2>
-void Point<T1, T2>::setX(T1 x){
-    m_x = x;
+String::String(){
+    cout << "Called null parameter construction"<<endl;
+    m_str = nullptr;
+    m_size = 0;
+    m_cap = 0;
+    tostring();
 }
 
-template<class T1, class T2>
-T2 Point<T1, T2>::getY() const{
-    return m_y;
+String::String(const char* s):m_size(strlen(s)),m_cap(strlen(s)){
+    cout << "Called parameterized construction"<<endl;
+    m_str = new char[m_cap+1];
+    strcpy(m_str,s);
+    tostring();
 }
 
-template<class T1, class T2>
-void Point<T1, T2>::setY(T2 y){
-    m_y = y;
+String::String(const String& s):m_size(s.m_size),m_cap(s.m_cap){
+    cout << "Called copy construction"<<endl;
+    m_str = new char[m_size+1];
+    strcpy(m_str,s.m_str);
+    tostring();
 }
+
+String::~String(){
+    delete[] m_str;
+    m_size = 0;
+    m_cap = 0;
+    m_str = nullptr;
+}
+String& String::operator=(const String& s){
+    cout << "assignment"<<endl;
+    if(this==&s){
+        delete[] m_str;
+        String(s);
+    }
+    return *this;
+}
+String operator+(const String& lhs,const String& rhs){
+    String result;
+    result.m_size = lhs.m_size + rhs.m_size;
+    result.m_cap =  lhs.m_cap + rhs.m_cap;
+    result.m_str = new char[result.m_size];
+    strcpy(result.m_str,rhs.m_str);
+    strcat(result.m_str,rhs.m_str);
+    return result;
+}
+ostream& operator<<(ostream& os, const String& str){
+    os<<str.m_str;
+    return os;
+}
+
+istream& operator>>(istream& is, String& str){
+    char buffer[1024];
+    is>>buffer;
+    str = String(buffer);
+    return is;
+}
+
+char& String::operator[](size_t index){
+    if(index>=m_size||index<0){
+        throw out_of_range("index out of rane");
+    }
+    return m_str[index];
+}
+
 
 int main(){
-    Point<int, int> p1(10, 20);
-    cout<<"x="<<p1.getX()<<", y="<<p1.getY()<<endl;
- 
-    Point<int, char*> p2(10, "东经180度");
-    cout<<"x="<<p2.getX()<<", y="<<p2.getY()<<endl;
- 
-    Point<char*, char*> *p3 = new Point<char*, char*>("东经180度", "北纬210度");
-    cout<<"x="<<p3->getX()<<", y="<<p3->getY()<<endl;
+    String s1;//调用空参构造
+    String s2("go go go");//有参构造
+    String s3(s2);//拷贝构造
+    String s4 = s3;//调用的还是拷贝构造
+    s3 = "wddddddd";//赋值
+    s4 = s3;//赋值
 
     return 0;
 }
