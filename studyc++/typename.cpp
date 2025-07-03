@@ -15,11 +15,14 @@ public:
     friend ostream& operator<<(ostream& os, const String& str);
     friend istream& operator>>(istream& is, String& str);
     void tostring();
+    size_t getlen();
 private:
     char* m_str;
     size_t m_size;
     size_t m_cap;
 };
+
+
 void String::tostring(){
     if(m_str!=nullptr)
         cout << m_str<<"    m_size:"<<m_size<<"      address"<<&m_str <<endl;
@@ -89,15 +92,28 @@ char& String::operator[](size_t index){
     }
     return m_str[index];
 }
-
+size_t String::getlen(){
+    return m_size;
+}
 
 int main(){
+
     String s1;//调用空参构造
     String s2("go go go");//有参构造
     String s3(s2);//拷贝构造
     String s4 = s3;//调用的还是拷贝构造
+
     s3 = "wddddddd";//赋值
     s4 = s3;//赋值
+    
+    for(int i = 0;i < s2.getlen();i++)cout << s2[i];//重载运算符[]
+    cout << endl;
+    cout << s2 << endl;//重载运算符<<
 
+
+    cout << "please cin >> s1:";
+    cin >> s1;//重载运算符>>
+    cout << s1 <<endl;
+    s1.tostring();
     return 0;
 }
